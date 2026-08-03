@@ -28,7 +28,7 @@
       border-radius: 12px;
       box-shadow: 0 4px 20px rgba(0,0,0,0.08);
       width: 100%;
-      max-width: 650px; /* Made wider here */
+      max-width: 650px;
       padding: 24px 16px;
       border-top: 5px solid var(--primary);
       box-sizing: border-box;
@@ -86,6 +86,36 @@
       background-color: #fff9e6;
       color: #8a6d1c;
       font-weight: bold;
+    }
+
+    /* Print Button Styling */
+    .print-btn {
+      width: 100%;
+      padding: 12px;
+      background-color: var(--primary);
+      color: #ffffff;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 15px;
+    }
+
+    /* Styles specifically for printing or saving as PDF */
+    @media print {
+      body {
+        background-color: #ffffff;
+        padding: 0;
+      }
+      .calculator-card {
+        box-shadow: none;
+        border: 1px solid #ccc;
+        max-width: 100%;
+      }
+      .print-btn {
+        display: none;
+      }
     }
   </style>
 </head>
@@ -216,6 +246,9 @@
         <label for="remaining">REMAINING AMOUNT</label>
         <input type="number" id="remaining" readonly>
       </div>
+
+      <!-- Print / Save PDF Button -->
+      <button type="button" class="print-btn" onclick="window.print()">🖨️ Print / Save PDF</button>
 
     </form>
   </div>
