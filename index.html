@@ -19,7 +19,7 @@
       color: var(--text);
       display: flex;
       justify-content: center;
-      padding: 20px;
+      padding: 12px;
       margin: 0;
     }
 
@@ -28,9 +28,10 @@
       border-radius: 12px;
       box-shadow: 0 4px 20px rgba(0,0,0,0.08);
       width: 100%;
-      max-width: 500px;
-      padding: 24px;
+      max-width: 650px; /* Made wider here */
+      padding: 24px 16px;
       border-top: 5px solid var(--primary);
+      box-sizing: border-box;
     }
 
     h2 {
@@ -42,18 +43,18 @@
 
     .form-group {
       display: grid;
-      grid-template-columns: 2fr 1fr 1.5fr;
+      grid-template-columns: 2.2fr 1fr 1.5fr;
       align-items: center;
       gap: 10px;
       margin-bottom: 12px;
     }
 
     .form-group.single-input {
-      grid-template-columns: 3fr 1.5fr;
+      grid-template-columns: 3.2fr 1.5fr;
     }
 
     label {
-      font-size: 0.9rem;
+      font-size: 0.95rem;
       font-weight: 600;
     }
 
@@ -104,13 +105,13 @@
           <option value="18K">18K</option>
           <option value="14K">14K</option>
         </select>
-        <input type="number" id="weight" step="0.001" value="4.507" oninput="calculate()">
+        <input type="number" id="weight" step="0.001" value="8" oninput="calculate()">
       </div>
 
       <!-- Jarti % -->
       <div class="form-group">
         <label for="jartiPct">Jarti% (जर्ती %)</label>
-        <input type="number" id="jartiPct" step="0.1" value="8" oninput="calculate()">
+        <input type="number" id="jartiPct" step="0.1" value="15" oninput="calculate()">
         <input type="number" id="jartiPctVal" readonly>
       </div>
 
@@ -156,7 +157,7 @@
       <!-- Rate -->
       <div class="form-group single-input">
         <label for="rate">Rate (दर)</label>
-        <input type="number" id="rate" value="284000" oninput="calculate()">
+        <input type="number" id="rate" value="298000" oninput="calculate()">
       </div>
 
       <!-- Gold Amount -->
