@@ -88,7 +88,6 @@
       font-weight: bold;
     }
 
-    /* Print Button Styling */
     .print-btn {
       width: 100%;
       padding: 12px;
@@ -102,17 +101,49 @@
       margin-top: 15px;
     }
 
-    /* Styles specifically for printing or saving as PDF */
+    /* --- OPTIMIZED FOR PRINT & A5 --- */
+    @page {
+      size: A5 portrait; /* Requests A5 size from printer */
+      margin: 8mm; /* Compact margins */
+    }
+
     @media print {
       body {
         background-color: #ffffff;
         padding: 0;
+        margin: 0;
       }
+
       .calculator-card {
         box-shadow: none;
-        border: 1px solid #ccc;
+        border: none;
         max-width: 100%;
+        padding: 0;
       }
+
+      h2 {
+        font-size: 1.2rem;
+        margin-bottom: 10px;
+      }
+
+      .form-group {
+        margin-bottom: 6px; /* Compact rows to prevent 2nd page */
+        gap: 6px;
+      }
+
+      label {
+        font-size: 0.82rem;
+      }
+
+      input, select {
+        padding: 4px 6px;
+        font-size: 0.85rem;
+      }
+
+      .divider {
+        margin: 8px 0;
+      }
+
       .print-btn {
         display: none;
       }
@@ -247,7 +278,7 @@
         <input type="number" id="remaining" readonly>
       </div>
 
-      <!-- Print / Save PDF Button -->
+      <!-- Print Button -->
       <button type="button" class="print-btn" onclick="window.print()">🖨️ Print / Save PDF</button>
 
     </form>
@@ -266,7 +297,6 @@
     }
 
     function calculate() {
-      // 1. Get Inputs
       const weight = parseFloat(document.getElementById('weight').value) || 0;
       const karat = document.getElementById('karat').value;
       const jartiPct = parseFloat(document.getElementById('jartiPct').value) || 0;
@@ -278,7 +308,6 @@
       const taxPct = parseFloat(document.getElementById('taxPct').value) || 0;
       const advance = parseFloat(document.getElementById('advance').value) || 0;
 
-      // 2. Calculations
       const jartiPctVal = weight * (jartiPct / 100);
       const totalWeight = weight + jartiPctVal + jartiItem;
 
@@ -297,7 +326,6 @@
       const grandTotal = discountedAmount + taxVal;
       const remaining = grandTotal - advance;
 
-      // 3. Render Outputs
       document.getElementById('jartiPctVal').value = jartiPctVal.toFixed(3);
       document.getElementById('totalWeight').value = totalWeight.toFixed(3);
       document.getElementById('tamaPct').value = tamaPct;
@@ -313,7 +341,6 @@
       document.getElementById('remaining').value = remaining.toFixed(2);
     }
 
-    // Run on load
     window.onload = calculate;
   </script>
 </body>
