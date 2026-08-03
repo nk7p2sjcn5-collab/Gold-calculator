@@ -1,340 +1,59 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gold (सुन) Estimate Calculator</title>
-  <style>
-    :root {
-      --primary: #d4af37;
-      --background: #f8f9fa;
-      --card-bg: #ffffff;
-      --text: #333333;
-      --border: #e0e0e0;
-    }
-
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: var(--background);
-      color: var(--text);
-      display: flex;
-      justify-content: center;
-      padding: 12px;
-      margin: 0;
-    }
-
-    .calculator-card {
-      background: var(--card-bg);
-      border-radius: 12px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-      width: 100%;
-      max-width: 650px;
-      padding: 24px 16px;
-      border-top: 5px solid var(--primary);
-      box-sizing: border-box;
-    }
-
-    h2 {
-      margin-top: 0;
-      color: #8a6d1c;
-      text-align: center;
-      margin-bottom: 20px;
-    }
-
-    .form-group {
-      display: grid;
-      grid-template-columns: 2.2fr 1fr 1.5fr;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 12px;
-    }
-
-    .form-group.single-input {
-      grid-template-columns: 3.2fr 1.5fr;
-    }
-
-    label {
-      font-size: 0.95rem;
-      font-weight: 600;
-    }
-
-    input, select {
-      padding: 8px 10px;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      font-size: 0.95rem;
-      width: 100%;
-      box-sizing: border-box;
-    }
-
-    input:focus, select:focus {
-      outline: none;
-      border-color: var(--primary);
-    }
-
-    input[readonly] {
-      background-color: #f1f3f5;
-      font-weight: 600;
-    }
-
-    .divider {
-      border-top: 1px dashed var(--border);
-      margin: 16px 0;
-    }
-
-    .highlight-row input {
-      background-color: #fff9e6;
-      color: #8a6d1c;
-      font-weight: bold;
-    }
-
-    .print-btn {
-      width: 100%;
-      padding: 12px;
-      background-color: var(--primary);
-      color: #ffffff;
-      border: none;
-      border-radius: 6px;
-      font-size: 1rem;
-      font-weight: bold;
-      cursor: pointer;
-      margin-top: 15px;
-    }
-
-    /* Print & A5 Optimization */
-    @page {
-      size: A5 portrait;
-      margin: 8mm;
-    }
-
-    @media print {
-      body {
-        background-color: #ffffff;
-        padding: 0;
-        margin: 0;
-      }
-
-      .calculator-card {
-        box-shadow: none;
-        border: none;
-        max-width: 100%;
-        padding: 0;
-      }
-
-      h2 {
-        font-size: 1.2rem;
-        margin-bottom: 10px;
-      }
-
-      .form-group {
-        margin-bottom: 6px;
-        gap: 6px;
-      }
-
-      label {
-        font-size: 0.82rem;
-      }
-
-      input, select {
-        padding: 4px 6px;
-        font-size: 0.85rem;
-      }
-
-      .divider {
-        margin: 8px 0;
-      }
-
-      .print-btn {
-        display: none;
-      }
-    }
-  </style>
-</head>
-<body>
-
-  <div class="calculator-card">
-    <h2>Gold Estimate Calculator</h2>
-    <form id="goldForm">
-
-      <!-- Customer Details -->
-      <div class="form-group single-input">
-        <label for="customerName">Customer Name (ग्राहक नाम)</label>
-        <input type="text" id="customerName" list="customerList" placeholder="Type name..." oninput="handleCustomerSelect()" onchange="handleCustomerSelect()">
-        <datalist id="customerList"></datalist>
-      </div>
-
-      <div class="form-group single-input">
-        <label for="customerPhone">Phone (फोन)</label>
-        <input type="text" id="customerPhone" placeholder="Phone number">
-      </div>
-
-      <div class="divider"></div>
-
-      <!-- Weight & Karat -->
-      <div class="form-group">
-        <label for="weight">Weight (तौल)</label>
-        <select id="karat" onchange="calculate()">
-          <option value="24K">24K</option>
-          <option value="23K">23K</option>
-          <option value="22K" selected>22K</option>
-          <option value="18K">18K</option>
-          <option value="14K">14K</option>
-        </select>
-        <input type="number" id="weight" step="0.001" value="8" oninput="calculate()">
-      </div>
-
-      <!-- Jarti % -->
-      <div class="form-group">
-        <label for="jartiPct">Jarti% (जर्ती %)</label>
-        <input type="number" id="jartiPct" step="0.1" value="15" oninput="calculate()">
-        <input type="number" id="jartiPctVal" readonly>
-      </div>
-
-      <!-- Jarti Per Item -->
-      <div class="form-group single-input">
-        <label for="jartiItem">Jarti per Item (जर्ती प्रति थान)</label>
-        <input type="number" id="jartiItem" step="0.001" value="0" oninput="calculate()">
-      </div>
-
-      <!-- Total Weight -->
-      <div class="form-group single-input">
-        <label for="totalWeight">Total weight (जम्मा तौल)</label>
-        <input type="number" id="totalWeight" readonly>
-      </div>
-
-      <!-- Tama Mix -->
-      <div class="form-group">
-        <label for="tamaVal">TAMA MIX (तामा मिश्रण)</label>
-        <input type="number" id="tamaPct" readonly>
-        <input type="number" id="tamaVal" readonly>
-      </div>
-
-      <!-- Pure Gold -->
-      <div class="form-group single-input">
-        <label for="pureGold">PURE GOLD (24K)</label>
-        <input type="number" id="pureGold" readonly>
-      </div>
-
-      <!-- Gold Given -->
-      <div class="form-group single-input">
-        <label for="goldGiven">Gold Given (सुन दिएको)</label>
-        <input type="number" id="goldGiven" step="0.001" value="0" oninput="calculate()">
-      </div>
-
-      <!-- Net Gold -->
-      <div class="form-group single-input">
-        <label for="totalGoldNet">Total Gold (जम्मा सुन)</label>
-        <input type="number" id="totalGoldNet" readonly>
-      </div>
-
-      <div class="divider"></div>
-
-      <!-- Rate -->
-      <div class="form-group single-input">
-        <label for="rate">Rate (दर)</label>
-        <input type="number" id="rate" value="298000" oninput="calculate()">
-      </div>
-
-      <!-- Gold Amount -->
-      <div class="form-group single-input">
-        <label for="goldAmount">Gold Amount (सुन रकम)</label>
-        <input type="number" id="goldAmount" readonly>
-      </div>
-
-      <!-- Jyala -->
-      <div class="form-group single-input">
-        <label for="jyala">Jyala (ज्याला)</label>
-        <input type="number" id="jyala" value="3000" oninput="calculate()">
-      </div>
-
-      <!-- Total Amount -->
-      <div class="form-group single-input">
-        <label for="totalAmount">Total Amount (जम्मा रकम)</label>
-        <input type="number" id="totalAmount" readonly>
-      </div>
-
-      <!-- Discount -->
-      <div class="form-group single-input">
-        <label for="discount">Discount (छुट)</label>
-        <input type="number" id="discount" value="0" oninput="calculate()">
-      </div>
-
-      <!-- Amount After Discount -->
-      <div class="form-group single-input">
-        <label for="discountedAmount">Amt. with Discount</label>
-        <input type="number" id="discountedAmount" readonly>
-      </div>
-
-      <!-- Tax -->
-      <div class="form-group">
-        <label for="taxVal">Tax (कर)</label>
-        <input type="number" id="taxPct" step="0.01" value="0.5" oninput="calculate()">
-        <input type="number" id="taxVal" readonly>
-      </div>
-
-      <!-- Grand Total -->
-      <div class="form-group single-input highlight-row">
-        <label for="grandTotal">TOTAL AMOUNT</label>
-        <input type="number" id="grandTotal" readonly>
-      </div>
-
-      <div class="divider"></div>
-
-      <!-- Advance -->
-      <div class="form-group single-input">
-        <label for="advance">ADVANCE AMOUNT</label>
-        <input type="number" id="advance" value="0" oninput="calculate()">
-      </div>
-
-      <!-- Remaining -->
-      <div class="form-group single-input highlight-row">
-        <label for="remaining">REMAINING AMOUNT</label>
-        <input type="number" id="remaining" readonly>
-      </div>
-
-      <!-- Print Button -->
-      <button type="button" class="print-btn" onclick="window.print()">🖨️ Print / Save PDF</button>
-
-    </form>
-  </div>
-
-  <script>
-    // Embedded contact database (You can easily add/edit names & numbers here!)
-    const contacts = [
-      { name: "ABAGYA", phone: "9800000001" },
-      { name: "ADITI", phone: "9800000002" },
-      { name: "AJAY SIMHA", phone: "9800000003" },
-      { name: "ALE (BHAWA MAN)", phone: "9800000004" },
-      { name: "ALKA SINGH", phone: "9800000005" },
-      { name: "ANITA SHRESTHA", phone: "9800000006" },
-      { name: "ANJU BAJE", phone: "9800000007" },
-      { name: "ANJU TIMALSINA", phone: "9800000008" },
-      { name: "ANSU THAPA", phone: "9800000009" },
-      { name: "ANU KC", phone: "9800000010" },
-      { name: "APARNA NEPAL", phone: "9800000011" },
-      { name: "ARATI DIJJU", phone: "9800000012" },
-      { name: "ARATI REGMI", phone: "9800000013" },
-      { name: "Niru Shrestha", phone: "9841234567" }
-    ];
-
+<script>
+    const SHEET_ID = '1IxI6n1hJwRmSmDA8M4fIXbX0jS9N2JLJwxR8j90lBik';
     let customerMap = {};
 
-    function initCustomers() {
-      const datalist = document.getElementById('customerList');
-      datalist.innerHTML = '';
-      customerMap = {};
+    // Load real contacts live from Google Sheets using JSONP
+    function loadCustomers() {
+      const script = document.createElement('script');
+      script.src = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=responseHandler:handleSheetData`;
+      document.body.appendChild(script);
+    }
 
-      contacts.forEach(c => {
-        customerMap[c.name.trim().toLowerCase()] = c.phone;
-        const opt = document.createElement('option');
-        opt.value = c.name;
-        datalist.appendChild(opt);
-      });
+    // Google Sheets callback function
+    function handleSheetData(data) {
+      try {
+        const rows = data.table.rows;
+        const datalist = document.getElementById('customerList');
+        datalist.innerHTML = '';
+        customerMap = {};
+
+        rows.forEach(row => {
+          if (!row || !row.c) return;
+
+          // Extract values from cells
+          const cells = row.c.map(cell => (cell && cell.v !== null && cell.v !== undefined) ? String(cell.v).trim() : '');
+
+          let name = '';
+          let phone = '';
+
+          // Look for name and phone in adjacent columns
+          for (let i = 0; i < cells.length; i++) {
+            if (cells[i] && cells[i].toUpperCase() !== 'NAMES' && cells[i].toUpperCase() !== 'NAME') {
+              if (!name) {
+                name = cells[i];
+              } else if (!phone) {
+                phone = cells[i];
+                break;
+              }
+            }
+          }
+
+          if (name) {
+            customerMap[name.toLowerCase()] = phone;
+
+            const opt = document.createElement('option');
+            opt.value = name;
+            datalist.appendChild(opt);
+          }
+        });
+      } catch (err) {
+        console.error("Failed to parse sheet data:", err);
+      }
     }
 
     function handleCustomerSelect() {
       const inputVal = document.getElementById('customerName').value.trim().toLowerCase();
-      if (customerMap[inputVal]) {
+      if (customerMap[inputVal] !== undefined) {
         document.getElementById('customerPhone').value = customerMap[inputVal];
       }
     }
@@ -397,8 +116,6 @@
 
     window.onload = function() {
       calculate();
-      initCustomers();
+      loadCustomers();
     };
   </script>
-</body>
-</html>
