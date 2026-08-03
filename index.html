@@ -91,7 +91,7 @@
 <body>
 
   <div class="calculator-card">
-    <h2> Gold Estimate Calculator</h2>
+    <h2>Gold Estimate Calculator</h2>
     <form id="goldForm">
 
       <!-- Weight & Karat -->
@@ -107,11 +107,17 @@
         <input type="number" id="weight" step="0.001" value="4.507" oninput="calculate()">
       </div>
 
-      <!-- Jarti -->
+      <!-- Jarti % -->
       <div class="form-group">
-        <label for="jartiPct">Jarti% (जर्ती)</label>
+        <label for="jartiPct">Jarti% (जर्ती %)</label>
         <input type="number" id="jartiPct" step="0.1" value="8" oninput="calculate()">
-        <input type="number" id="jartiVal" readonly>
+        <input type="number" id="jartiPctVal" readonly>
+      </div>
+
+      <!-- Jarti Per Item -->
+      <div class="form-group single-input">
+        <label for="jartiItem">Jarti per Item (जर्ती प्रति थान)</label>
+        <input type="number" id="jartiItem" step="0.001" value="0" oninput="calculate()">
       </div>
 
       <!-- Total Weight -->
@@ -230,6 +236,7 @@
       const weight = parseFloat(document.getElementById('weight').value) || 0;
       const karat = document.getElementById('karat').value;
       const jartiPct = parseFloat(document.getElementById('jartiPct').value) || 0;
+      const jartiItem = parseFloat(document.getElementById('jartiItem').value) || 0;
       const goldGiven = parseFloat(document.getElementById('goldGiven').value) || 0;
       const rate = parseFloat(document.getElementById('rate').value) || 0;
       const jyala = parseFloat(document.getElementById('jyala').value) || 0;
@@ -238,8 +245,8 @@
       const advance = parseFloat(document.getElementById('advance').value) || 0;
 
       // 2. Calculations
-      const jartiVal = weight * (jartiPct / 100);
-      const totalWeight = weight + jartiVal;
+      const jartiPctVal = weight * (jartiPct / 100);
+      const totalWeight = weight + jartiPctVal + jartiItem;
 
       const tamaPct = getTamaPercent(karat);
       const tamaVal = totalWeight * tamaPct;
@@ -247,7 +254,6 @@
 
       const totalGoldNet = pureGold - goldGiven;
       
-      // New Order Calculations:
       const goldAmount = totalGoldNet * rate;
       const totalAmount = goldAmount + jyala;
       
@@ -258,7 +264,7 @@
       const remaining = grandTotal - advance;
 
       // 3. Render Outputs
-      document.getElementById('jartiVal').value = jartiVal.toFixed(3);
+      document.getElementById('jartiPctVal').value = jartiPctVal.toFixed(3);
       document.getElementById('totalWeight').value = totalWeight.toFixed(3);
       document.getElementById('tamaPct').value = tamaPct;
       document.getElementById('tamaVal').value = tamaVal.toFixed(3);
