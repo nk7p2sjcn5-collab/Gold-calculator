@@ -299,12 +299,10 @@
   </div>
 
   <script>
-    // Direct Customer Database
-    let customerMap = {};
+    const SHEET_ID = '1IxI6n1hJwRmSmDA8M4fIXbX0jS9N2JLJwxR8j90lBik';
+    let customerList = [];
 
-    // Live Google Sheet fetch attempt with instant local fallback
     function loadCustomers() {
-      const SHEET_ID = '1IxI6n1hJwRmSmDA8M4fIXbX0jS9N2JLJwxR8j90lBik';
       const script = document.createElement('script');
       script.src = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=responseHandler:handleSheetData`;
       document.body.appendChild(script);
@@ -315,32 +313,39 @@
         const rows = data.table.rows;
         const datalist = document.getElementById('customerList');
         datalist.innerHTML = '';
-        customerMap = {};
+        customerList = [];
 
         rows.forEach(row => {
           if (!row || !row.c) return;
-          const cells = row.c.map(cell => (cell && cell.v !== null) ? String(cell.v).trim() : '');
-          
-          // Detect Name and Phone from sheet row
+          const cells = row.c.map(cell => (cell && cell.v !== null && cell.v !== undefined) ? String(cell.v).trim() : '');
+
           let name = cells[1] || cells[0] || '';
           let phone = cells[2] || cells[1] || '';
 
           if (name && name.toUpperCase() !== 'NAMES' && name.toUpperCase() !== 'NAME') {
-            customerMap[name.toLowerCase()] = phone;
+            customerList.push({ name: name, phone: phone });
+
             const opt = document.createElement('option');
-            opt.value = name;
+            opt.value = phone ? `${name} (${phone})` : name;
             datalist.appendChild(opt);
           }
         });
       } catch (err) {
-        console.warn("Could not parse live sheet data", err);
+        console.warn("Could not parse sheet data", err);
       }
     }
 
     function handleCustomerSelect() {
-      const inputVal = document.getElementById('customerName').value.trim().toLowerCase();
-      if (customerMap[inputVal] !== undefined) {
-        document.getElementById('customerPhone').value = customerMap[inputVal];
+      const inputVal = document.getElementById('customerName').value.trim();
+      
+      const found = customerList.find(c => {
+        const combined = c.phone ? `${c.name} (${c.phone})` : c.name;
+        return combined.toLowerCase() === inputVal.toLowerCase() || c.name.toLowerCase() === inputVal.toLowerCase();
+      });
+
+      if (found) {
+        document.getElementById('customerName').value = found.name;
+        document.getElementById('customerPhone').value = found.phone;
       }
     }
 
