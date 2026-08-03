@@ -2,40 +2,54 @@
     const SHEET_ID = '1IxI6n1hJwRmSmDA8M4fIXbX0jS9N2JLJwxR8j90lBik';
     let customerData = {};
 
-    // Load Google Sheets data safely via JSONP (Bypasses mobile CORS blocks)
+    // Load Google Sheets data via Google's API
     function loadCustomers() {
       const script = document.createElement('script');
-      // Google Visualization API callback URL
       script.src = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=responseHandler:handleSheetData`;
       document.body.appendChild(script);
     }
 
-    // Callback function executed automatically when Google Sheet responds
+    // Callback executed automatically when sheet loads
     function handleSheetData(data) {
-      const rows = data.table.rows;
-      const datalist = document.getElementById('customerList');
-      datalist.innerHTML = '';
-      customerData = {};
+      try {
+        const rows = data.table.rows;
+        const datalist = document.getElementById('customerList');
+        datalist.innerHTML = '';
+        customerData = {};
 
-      rows.forEach(row => {
-        if (!row.c) return;
-        const nameCell = row.c[0] ? row.c[0].v : null;
-        const phoneCell = row.c[1] ? row.c[1].v : null;
+        rows.forEach(row => {
+          if (!row || !row.c) return;
 
-        if (nameCell) {
-          const nameStr = String(nameCell).trim();
-          const phoneStr = phoneCell ? String(phoneCell).trim() : '';
+          // Extract values from each column in the row
+          const values = row.c.map(cell => (cell && cell.v !== null && cell.v !== undefined) ? String(cell.v).trim() : '');
 
-          customerData[nameStr.toLowerCase()] = phoneStr;
+          let name = '';
+          let phone = '';
+
+          // Handle sheet structure (Column B = Name, Column C = Phone OR Column A = Name, Column B = Phone)
+          if (values.length >= 3 && values[1]) {
+            name = values[1];
+            phone = values[2] || '';
+          } else if (values.length >= 2 && values[0]) {
+            name = values[0];
+            phone = values[1] || '';
+          }
+
+          // Skip header row ("NAMES", "NAME", etc.)
+          if (!name || name.toUpperCase() === 'NAMES' || name.toUpperCase() === 'NAME') return;
+
+          customerData[name.toLowerCase()] = phone;
 
           const option = document.createElement('option');
-          option.value = nameStr;
+          option.value = name;
           datalist.appendChild(option);
-        }
-      });
+        });
+      } catch (e) {
+        console.error("Error loading customer data:", e);
+      }
     }
 
-    // Auto-fill phone number on input/selection
+    // Auto-fill phone number when name is typed or selected
     function handleCustomerSelect() {
       const inputVal = document.getElementById('customerName').value.trim().toLowerCase();
       if (customerData[inputVal] !== undefined) {
