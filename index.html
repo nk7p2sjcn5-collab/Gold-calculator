@@ -360,6 +360,16 @@
       return rates[karat] || 0.00;
     }
 
+    // Helper function to truncate weights to 3 decimal places without rounding up
+    function roundDown3(num) {
+      return Math.floor(((num || 0) + Number.EPSILON) * 1000) / 1000;
+    }
+
+    // Helper function to truncate monetary amounts to 2 decimal places without rounding up
+    function roundDown2(num) {
+      return Math.floor(((num || 0) + Number.EPSILON) * 100) / 100;
+    }
+
     function calculate() {
       const weight = parseFloat(document.getElementById('weight').value) || 0;
       const karat = document.getElementById('karat').value;
@@ -372,24 +382,24 @@
       const taxPct = parseFloat(document.getElementById('taxPct').value) || 0;
       const advance = parseFloat(document.getElementById('advance').value) || 0;
 
-      const jartiPctVal = weight * (jartiPct / 100);
-      const totalWeight = weight + jartiPctVal + jartiItem;
+      // --- Weights Calculation (3 Decimals Truncated) ---
+      const jartiPctVal = roundDown3(weight * (jartiPct / 100));
+      const totalWeight = roundDown3(weight + jartiPctVal + jartiItem);
 
       const tamaPct = getTamaPercent(karat);
-      const tamaVal = totalWeight * tamaPct;
-      const pureGold = totalWeight - tamaVal;
+      const tamaVal = roundDown3(totalWeight * tamaPct);
+      const pureGold = roundDown3(totalWeight - tamaVal);
+      const totalGoldNet = roundDown3(pureGold - goldGiven);
 
-      const totalGoldNet = pureGold - goldGiven;
-      
-      const goldAmount = totalGoldNet * rate;
-      const totalAmount = goldAmount + jyala;
-      
-      const discountedAmount = totalAmount - discount;
-      const taxVal = discountedAmount * (taxPct / 100);
+      // --- Monetary Calculation (2 Decimals Truncated) ---
+      const goldAmount = roundDown2(totalGoldNet * rate);
+      const totalAmount = roundDown2(goldAmount + jyala);
+      const discountedAmount = roundDown2(totalAmount - discount);
+      const taxVal = roundDown2(discountedAmount * (taxPct / 100));
+      const grandTotal = roundDown2(discountedAmount + taxVal);
+      const remaining = roundDown2(grandTotal - advance);
 
-      const grandTotal = discountedAmount + taxVal;
-      const remaining = grandTotal - advance;
-
+      // --- UI Outputs ---
       document.getElementById('jartiPctVal').value = jartiPctVal.toFixed(3);
       document.getElementById('totalWeight').value = totalWeight.toFixed(3);
       document.getElementById('tamaPct').value = tamaPct;
