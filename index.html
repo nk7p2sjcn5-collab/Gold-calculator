@@ -88,6 +88,31 @@
       font-weight: bold;
     }
 
+    .row-words {
+      background-color: #f8fafc;
+      border: 1px dashed #cbd5e1;
+      padding: 10px;
+      border-radius: 6px;
+      margin: 8px 0;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 4px;
+    }
+
+    .sub-label {
+      font-size: 11.5px;
+      color: #666666;
+      margin-left: 4px;
+    }
+
+    .amount-words-text {
+      font-weight: 700;
+      color: #1e293b;
+      font-size: 13.5px;
+      line-height: 1.4;
+    }
+
     .print-btn {
       width: 100%;
       padding: 12px;
@@ -292,6 +317,18 @@
         <input type="number" id="remaining" readonly>
       </div>
 
+      <!-- AMOUNT IN WORDS (ENGLISH) -->
+      <div class="row-words">
+        <span class="label">AMOUNT IN WORDS <span class="sub-label">(English)</span></span>
+        <span class="amount-words-text" id="amountInWordsEnglish">-</span>
+      </div>
+
+      <!-- AMOUNT IN WORDS (NEPALI) -->
+      <div class="row-words">
+        <span class="label">AMOUNT IN WORDS <span class="sub-label">(अक्षरेपी)</span></span>
+        <span class="amount-words-text" id="amountInWordsNepali">-</span>
+      </div>
+
       <!-- Print Button -->
       <button type="button" class="print-btn" onclick="window.print()">🖨️ Print / Save PDF</button>
 
@@ -370,6 +407,76 @@
       return Math.floor(((num || 0) + Number.EPSILON) * 100) / 100;
     }
 
+    // Convert Numbers to English Words (South Asian System)
+    function numberToEnglishWords(num) {
+      if (num === 0) return 'Zero Rupees Only';
+
+      const ones = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten',
+                    'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
+      const tens = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
+
+      let rupees = Math.floor(num);
+      let paisa = Math.round((num - rupees) * 100);
+
+      function convertTwoDigits(n) {
+        if (n < 20) return ones[n];
+        return (tens[Math.floor(n / 10)] + ' ' + ones[n % 10]).trim();
+      }
+
+      function convertGroup(n) {
+        let str = '';
+        if (n >= 10000000) { str += convertGroup(Math.floor(n / 10000000)) + ' Crore '; n %= 10000000; }
+        if (n >= 100000) { str += convertGroup(Math.floor(n / 100000)) + ' Lakh '; n %= 100000; }
+        if (n >= 1000) { str += convertGroup(Math.floor(n / 1000)) + ' Thousand '; n %= 1000; }
+        if (n >= 100) { str += ones[Math.floor(n / 100)] + ' Hundred '; n %= 100; }
+        if (n > 0) { str += convertTwoDigits(n) + ' '; }
+        return str.trim();
+      }
+
+      let words = convertGroup(rupees) ? convertGroup(rupees) + ' Rupees' : '';
+      if (paisa > 0) {
+        words += (words ? ' And ' : '') + convertTwoDigits(paisa) + ' Paisa';
+      }
+
+      return (words + ' Only').trim();
+    }
+
+    // Convert Numbers to Nepali Words
+    function numberToNepaliWords(num) {
+      if (num === 0) return 'शून्य रुपैयाँ मात्र';
+
+      const ones = ['', 'एक', 'दुई', 'तीन', 'चार', 'पाँच', 'छ', 'सात', 'आठ', 'नौ', 'दस', 
+                    'एघार', 'बाह्र', 'तेह्र', 'चौध', 'पन्ध्र', 'सोह्र', 'सत्र', 'अठार', 'उन्नाइस', 'बीस', 
+                    'एकइस', 'बाइस', 'ताइस', 'चौबीस', 'पच्चिस', 'छब्बीस', 'सत्ताइस', 'अठ्ठाइस', 'उन्नतीस', 'तीस', 
+                    'एकतीस', 'बत्तीस', 'तेत्तीस', 'चौँतीस', 'पैँतीस', 'छत्तीस', 'सरतीस', 'अड्तीस', 'उनन्चालीस', 'चालीस', 
+                    'एकचालीस', 'बयालीस', 'त्रिचालीस', 'चौवालिस', 'पैँतालीस', 'छियालीस', 'सरचालीस', 'अढ्चालीस', 'उनन्चास', 'पचास', 
+                    'एककाउन्न', 'बाउन्न', 'त्रिपन्न', 'चौवन्न', 'पचपन्न', 'छप्पन्न', 'सन्ताउन्न', 'अन्ठाउन्न', 'उनन्सठ्ठी', 'साठी', 
+                    'एकसठ्ठी', 'बायसठ्ठी', 'त्रिसठ्ठी', 'चौंसठ्ठी', 'पैंसठ्ठी', 'छ्यासठ्ठी', 'सड्सठ्ठी', 'अड्सठ्ठी', 'उनन्सत्तरी', 'सत्तरी', 
+                    'एकहत्तर', 'बहत्तर', 'त्रिहत्तर', 'चौहत्तर', 'पचहत्तर', 'छ्याहत्तर', 'सतहत्तर', 'अठहत्तर', 'उनासी', 'असी', 
+                    'एकासी', 'बयासी', 'त्रिरासी', 'चौरासी', 'पचासी', 'छियासी', 'सतासी', 'अठासी', 'उनान्नब्बे', 'नब्बे', 
+                    'एकान्नब्बे', 'बयान्नब्बे', 'त्रियान्नब्बे', 'चौरान्नब्बे', 'पञ्चान्नब्बे', 'छ्यान्नब्बे', 'सन्तान्नब्बे', 'अन्ठान्नब्बे', 'उनान्सेय'];
+
+      let rupees = Math.floor(num);
+      let paisa = Math.round((num - rupees) * 100);
+
+      function convertGroup(n) {
+        let str = '';
+        if (n >= 10000000) { str += convertGroup(Math.floor(n / 10000000)) + ' करोड '; n %= 10000000; }
+        if (n >= 100000) { str += convertGroup(Math.floor(n / 100000)) + ' लाख '; n %= 100000; }
+        if (n >= 1000) { str += convertGroup(Math.floor(n / 1000)) + ' हजार '; n %= 1000; }
+        if (n >= 100) { str += ones[Math.floor(n / 100)] + ' सय '; n %= 100; }
+        if (n > 0) { str += ones[n] + ' '; }
+        return str.trim();
+      }
+
+      let words = convertGroup(rupees) ? convertGroup(rupees) + ' रुपैयाँ' : '';
+      if (paisa > 0) {
+        words += (words ? ' ' : '') + ones[paisa] + ' पैसा';
+      }
+
+      return (words + ' मात्र').trim();
+    }
+
     function calculate() {
       const weight = parseFloat(document.getElementById('weight').value) || 0;
       const karat = document.getElementById('karat').value;
@@ -413,6 +520,10 @@
       document.getElementById('taxVal').value = taxVal.toFixed(2);
       document.getElementById('grandTotal').value = grandTotal.toFixed(2);
       document.getElementById('remaining').value = remaining.toFixed(2);
+
+      // --- Amount In Words Outputs ---
+      document.getElementById('amountInWordsEnglish').innerText = numberToEnglishWords(remaining);
+      document.getElementById('amountInWordsNepali').innerText = numberToNepaliWords(remaining);
     }
 
     window.onload = function() {
